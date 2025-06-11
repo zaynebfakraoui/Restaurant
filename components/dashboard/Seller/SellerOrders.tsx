@@ -158,7 +158,7 @@ const SellerOrders: React.FC = () => {
       const response = await fetch("/api/order");
 
       if (response.status === 401) {
-        setError("Please log in to view your orders");
+        setError("Veuillez vous connecter pour voir vos commandes");
         return;
       }
 
@@ -169,12 +169,16 @@ const SellerOrders: React.FC = () => {
       const data = await response.json();
 
       // Transform API orders to the format expected by the OrdersTable component
-      const transformedOrders: UpdatedOrder[] = data.orders.map(
+     const transformedOrders: UpdatedOrder[] = data.orders.map(
         (order: ApiOrder) => ({
           id: order._id,
-          customer: order.client.name || order.client.email,
+          customer:
+            order.client?.name || order.client?.email || "Unknown Customer",
           items: order.items
-            .map((item) => `${item.menuItem.name} x${item.quantity}`)
+            .map(
+              (item) =>
+                '${item.menuItem?.name || "Unknown Item"} x${item.quantity},'
+            )
             .join(", "),
           total: order.totalAmount,
           status: order.status,
@@ -185,8 +189,8 @@ const SellerOrders: React.FC = () => {
       setOrders(transformedOrders);
       setError(null);
     } catch (err) {
-      console.error("Error fetching orders:", err);
-      setError(err instanceof Error ? err.message : "Failed to fetch orders");
+      console.error("Erreur lors de la récupération des commandes:", err);
+      setError(err instanceof Error ? err.message : "Échec de la récupération des commandes");
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -231,7 +235,7 @@ const SellerOrders: React.FC = () => {
   };
 
   const handleViewOrder = (orderId: string) => {
-    router.push(`/dashboard/orders/${orderId}`);
+    router.push(`/dashboard/ordres/${orderId}`);
   };
 
   const getStatusCount = (status: OrderStatus | "all") => {
@@ -242,17 +246,17 @@ const SellerOrders: React.FC = () => {
   return (
     <div>
       <div className="animate-fade-in">
-        {error === "Please log in to view your orders" ? (
+        {error === "Veuillez vous connecter pour voir vos commandes" ? (
           <Card>
             <CardContent className="p-8 flex flex-col items-center justify-center text-center">
               <div className="mb-4 p-4 rounded-full bg-yellow-100">
                 <Lock className="h-8 w-8 text-yellow-600" />
               </div>
               <h3 className="text-xl font-semibold mb-2">
-                Authentication Required
+                Authentification requise
               </h3>
               <p className="text-gray-600 mb-4">
-                Please log in to view your orders
+                Veuillez vous connecter pour voir vos commandes
               </p>
               <Button onClick={() => router.push("/auth/login")}>Log In</Button>
             </CardContent>
@@ -268,7 +272,7 @@ const SellerOrders: React.FC = () => {
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm font-medium text-yellow-800 mb-1">
-                        Pending
+                        En attente
                       </p>
                       <h3 className="text-2xl font-bold text-yellow-900">
                         {getStatusCount("pending")}
@@ -285,7 +289,7 @@ const SellerOrders: React.FC = () => {
                           %
                         </span>
                         <span className="text-xs text-gray-500 ml-1">
-                          of total
+                          du total
                         </span>
                       </div>
                     </div>
@@ -304,7 +308,7 @@ const SellerOrders: React.FC = () => {
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm font-medium text-blue-800 mb-1">
-                        Processing
+                        Traitement
                       </p>
                       <h3 className="text-2xl font-bold text-blue-900">
                         {getStatusCount("preparing") +
@@ -326,7 +330,7 @@ const SellerOrders: React.FC = () => {
                           %
                         </span>
                         <span className="text-xs text-gray-500 ml-1">
-                          of total
+                         du total
                         </span>
                       </div>
                     </div>
@@ -345,7 +349,7 @@ const SellerOrders: React.FC = () => {
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm font-medium text-green-800 mb-1">
-                        Delivered
+                        Livré
                       </p>
                       <h3 className="text-2xl font-bold text-green-900">
                         {getStatusCount("delivered")}
@@ -362,7 +366,7 @@ const SellerOrders: React.FC = () => {
                           %
                         </span>
                         <span className="text-xs text-gray-500 ml-1">
-                          of total
+                          du total
                         </span>
                       </div>
                     </div>
@@ -381,7 +385,7 @@ const SellerOrders: React.FC = () => {
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm font-medium text-red-800 mb-1">
-                        Cancelled
+                        Annulé
                       </p>
                       <h3 className="text-2xl font-bold text-red-900">
                         {getStatusCount("cancelled")}
@@ -398,7 +402,7 @@ const SellerOrders: React.FC = () => {
                           %
                         </span>
                         <span className="text-xs text-gray-500 ml-1">
-                          of total
+                          du total
                         </span>
                       </div>
                     </div>
@@ -424,49 +428,49 @@ const SellerOrders: React.FC = () => {
                       value="all"
                       className="data-[state=active]:bg-white data-[state=active]:shadow-sm"
                     >
-                      All Orders
+                     Toutes les commandes
                     </TabsTrigger>
                     <TabsTrigger
                       value="pending"
                       className="data-[state=active]:bg-white data-[state=active]:shadow-sm"
                     >
-                      Pending
+                      En attente
                     </TabsTrigger>
                     <TabsTrigger
                       value="confirmed"
                       className="data-[state=active]:bg-white data-[state=active]:shadow-sm"
                     >
-                      Confirmed
+                      Confirmé
                     </TabsTrigger>
                     <TabsTrigger
                       value="preparing"
                       className="data-[state=active]:bg-white data-[state=active]:shadow-sm"
                     >
-                      Preparing
+                      Préparation
                     </TabsTrigger>
                     <TabsTrigger
                       value="ready"
                       className="data-[state=active]:bg-white data-[state=active]:shadow-sm"
                     >
-                      Ready
+                      Prêt
                     </TabsTrigger>
                     <TabsTrigger
                       value="in-delivery"
                       className="data-[state=active]:bg-white data-[state=active]:shadow-sm"
                     >
-                      In Delivery
+                      En livraison
                     </TabsTrigger>
                     <TabsTrigger
                       value="delivered"
                       className="data-[state=active]:bg-white data-[state=active]:shadow-sm"
                     >
-                      Delivered
+                      Livré
                     </TabsTrigger>
                     <TabsTrigger
                       value="cancelled"
                       className="data-[state=active]:bg-white data-[state=active]:shadow-sm"
                     >
-                      Cancelled
+                      Annulé
                     </TabsTrigger>
                   </TabsList>
 
@@ -477,7 +481,7 @@ const SellerOrders: React.FC = () => {
                         size={18}
                       />
                       <Input
-                        placeholder="Search orders..."
+                        placeholder="Rechercher des commandes..."
                         className="pl-10 w-96"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
@@ -498,7 +502,7 @@ const SellerOrders: React.FC = () => {
                   <Card>
                     <CardContent className="p-8 flex justify-center items-center">
                       <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                      <span className="ml-2">Loading orders...</span>
+                      <span className="ml-2">Chargement des commandes...</span>
                     </CardContent>
                   </Card>
                 ) : error ? (
@@ -621,15 +625,15 @@ const OrdersTabContent: React.FC<OrdersTabContentProps> = ({
           <Table>
             <TableHeader className="bg-gray-50">
               <TableRow>
-                <TableHead className="font-semibold">Order ID</TableHead>
-                <TableHead className="font-semibold">Customer</TableHead>
-                <TableHead className="font-semibold">Items</TableHead>
-                <TableHead className="font-semibold">Total</TableHead>
-                <TableHead className="font-semibold">Status</TableHead>
-                <TableHead className="font-semibold">Date</TableHead>
-                <TableHead className="text-right font-semibold">
-                  Actions
-                </TableHead>
+                <TableHead className="font-semibold">Numéro de commande</TableHead>
+<TableHead className="font-semibold">Client</TableHead>
+<TableHead className="font-semibold">Articles</TableHead>
+<TableHead className="font-semibold">Total</TableHead>
+<TableHead className="font-semibold">Statut</TableHead>
+<TableHead className="font-semibold">Date</TableHead>
+<TableHead className="text-right font-semibold">
+Actions
+</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -676,7 +680,7 @@ const OrdersTabContent: React.FC<OrdersTabContentProps> = ({
                     colSpan={7}
                     className="text-center py-8 text-gray-500"
                   >
-                    No orders found
+                    Aucune commande trouvée
                   </TableCell>
                 </TableRow>
               )}
